@@ -326,6 +326,246 @@ function updateAndroidConfig() {
   console.log('✅ Android配置已更新');
 }
 
+// 创建Gradle Wrapper
+function createGradleWrapper() {
+  console.log('创建Gradle Wrapper...');
+  
+  // 创建gradlew脚本
+  const gradlewScript = `#!/bin/sh
+
+# Gradle start up script for UN*X
+
+# Attempt to set APP_HOME
+# Resolve links: $0 may be a link
+PRG="$0"
+# Need this for relative symlinks.
+while [ -h "$PRG" ] ; do
+    ls=\`ls -ld "$PRG"\`
+    link=\`expr "$ls" : '.*-> \\(.*\\)$'\`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=\`dirname "$PRG"\`"/$link"
+    fi
+done
+SAVED="\`pwd\`"
+cd "\`dirname \\"$PRG\\"\`/" >/dev/null
+APP_HOME="\`pwd -P\`"
+cd "$SAVED" >/dev/null
+
+APP_NAME="Gradle"
+APP_BASE_NAME=\`basename "$0"\`
+
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD="maximum"
+
+warn ( ) {
+    echo "$*"
+}
+
+die ( ) {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+case "\`uname\`" in
+  CYGWIN* )
+    cygwin=true
+    ;;
+  Darwin* )
+    darwin=true
+    ;;
+  MINGW* )
+    msys=true
+    ;;
+esac
+
+# For Cygwin, ensure paths are in UNIX format before anything is touched.
+if $cygwin ; then
+    [ -n "$JAVA_HOME" ] && JAVA_HOME=\`cygpath --unix "$JAVA_HOME"\`
+fi
+
+# Attempt to set ANDROID_HOME
+if [ -z "$ANDROID_HOME" ] ; then
+    if [ -x "$ANDROID_SDK_ROOT/platform-tools/adb" ] ; then
+        export ANDROID_HOME="$ANDROID_SDK_ROOT"
+    elif [ -x "$HOME/Android/Sdk/platform-tools/adb" ] ; then
+        export ANDROID_HOME="$HOME/Android/Sdk"
+    elif [ -x "/usr/local/android-sdk/platform-tools/adb" ] ; then
+        export ANDROID_HOME="/usr/local/android-sdk"
+    fi
+fi
+
+# Determine the Java command to use to start the JVM.
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+else
+    JAVACMD="java"
+    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+fi
+
+# Increase the maximum file descriptors if we can.
+if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
+    MAX_FD_LIMIT=\`ulimit -H -n\`
+    if [ $? -eq 0 ] ; then
+        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+            MAX_FD="$MAX_FD_LIMIT"
+        fi
+        ulimit -n $MAX_FD
+        if [ $? -ne 0 ] ; then
+            warn "Could not set maximum file descriptor limit: $MAX_FD"
+        fi
+    else
+        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
+    fi
+fi
+
+# For Darwin, add options to specify how the application appears in the dock
+if $darwin; then
+    GRADLE_OPTS="$GRADLE_OPTS \\"-Xdock:name=$APP_NAME\\" \\"-Xdock:icon=$APP_HOME/media/gradle.icns\\""
+fi
+
+# For Cygwin, switch paths to Windows format before running java
+if $cygwin ; then
+    APP_HOME=\`cygpath --path --mixed "$APP_HOME"\`
+    CLASSPATH=\`cygpath --path --mixed "$CLASSPATH"\`
+fi
+
+# Find gradle
+if [ -f "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" ] ; then
+    GRADLE_JAR="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+else
+    # Use system gradle if wrapper not found
+    GRADLE_JAR=""
+fi
+
+if [ -n "$GRADLE_JAR" ] ; then
+    exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS \\"-Dorg.gradle.appname=$APP_BASE_NAME\\" -classpath "$GRADLE_JAR" org.gradle.wrapper.GradleWrapperMain "$@"
+else
+    # Fallback to system gradle
+    exec gradle "$@"
+fi
+`;
+
+  // 创建gradlew.bat脚本
+  const gradlewBatScript = `@rem Gradle startup script for Windows
+
+@rem Set local scope for the variables with windows NT shell
+if "%OS%"=="Windows_NT" setlocal
+
+set DIRNAME=%~dp0
+if "%DIRNAME%" == "" set DIRNAME=.
+set APP_BASE_NAME=%~n0
+set APP_HOME=%DIRNAME%
+
+@rem Resolve any "." and ".." in APP_HOME to make it shorter.
+for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
+
+@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
+
+@rem Find java.exe
+if defined JAVA_HOME goto findJavaFromJavaHome
+
+set JAVA_EXE=java.exe
+%JAVA_EXE% -version >NUL 2>&1
+if "%ERRORLEVEL%" == "0" goto execute
+
+echo.
+echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+echo.
+echo Please set the JAVA_HOME variable in your environment to match the
+echo location of your Java installation.
+
+goto fail
+
+:findJavaFromJavaHome
+set JAVA_HOME=%JAVA_HOME:"=%
+set JAVA_EXE=%JAVA_HOME%/bin/java.exe
+
+if exist "%JAVA_EXE%" goto execute
+
+echo.
+echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
+echo.
+echo Please set the JAVA_HOME variable in your environment to match the
+echo location of your Java installation.
+
+goto fail
+
+:execute
+@rem Setup the command line
+
+set CLASSPATH=%APP_HOME%\\gradle\\wrapper\\gradle-wrapper.jar
+
+@rem Execute Gradle
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*
+
+:end
+@rem End local scope for the variables with windows NT shell
+if "%ERRORLEVEL%"=="0" goto mainEnd
+
+:fail
+rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
+rem the _cmd_ return code when the batch file is called from a command line.
+if not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
+exit /b 1
+
+:mainEnd
+if "%OS%"=="Windows_NT" endlocal
+
+:omega
+`;
+
+  // 写入gradlew文件
+  fs.writeFileSync('android/gradlew', gradlewScript);
+  fs.writeFileSync('android/gradlew.bat', gradlewBatScript);
+  
+  // 设置执行权限
+  try {
+    execSync('chmod +x android/gradlew', { stdio: 'inherit' });
+  } catch (error) {
+    console.log('设置gradlew权限时出现警告:', error.message);
+  }
+  
+  // 创建gradle wrapper目录和属性文件
+  const wrapperDir = 'android/gradle/wrapper';
+  if (!fs.existsSync(wrapperDir)) {
+    fs.mkdirSync(wrapperDir, { recursive: true });
+  }
+  
+  const gradleWrapperProperties = `distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\\://services.gradle.org/distributions/gradle-7.6.1-bin.zip
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+`;
+  
+  fs.writeFileSync('android/gradle/wrapper/gradle-wrapper.properties', gradleWrapperProperties);
+  
+  console.log('✅ Gradle Wrapper已创建');
+}
+
 // 构建APK
 function buildAPK() {
   console.log('\n🏗️ 开始构建APK...');
@@ -334,20 +574,35 @@ function buildAPK() {
     // 进入android目录并构建
     process.chdir('android');
     
-    // 清理项目
+    // 创建Gradle Wrapper
+    process.chdir('..');
+    createGradleWrapper();
+    process.chdir('android');
+    
+    // 使用系统gradle进行构建
     console.log('清理项目...');
-    if (process.platform === 'win32') {
-      execSync('gradlew.bat clean', { stdio: 'inherit' });
-    } else {
-      execSync('./gradlew clean', { stdio: 'inherit' });
+    try {
+      if (process.platform === 'win32') {
+        execSync('gradlew.bat clean', { stdio: 'inherit' });
+      } else {
+        execSync('./gradlew clean', { stdio: 'inherit' });
+      }
+    } catch (error) {
+      console.log('使用系统gradle清理...');
+      execSync('gradle clean', { stdio: 'inherit' });
     }
     
     // 构建Release APK
     console.log('构建Release APK...');
-    if (process.platform === 'win32') {
-      execSync('gradlew.bat assembleRelease', { stdio: 'inherit' });
-    } else {
-      execSync('./gradlew assembleRelease', { stdio: 'inherit' });
+    try {
+      if (process.platform === 'win32') {
+        execSync('gradlew.bat assembleRelease', { stdio: 'inherit' });
+      } else {
+        execSync('./gradlew assembleRelease', { stdio: 'inherit' });
+      }
+    } catch (error) {
+      console.log('使用系统gradle构建...');
+      execSync('gradle assembleRelease', { stdio: 'inherit' });
     }
     
     // 返回根目录

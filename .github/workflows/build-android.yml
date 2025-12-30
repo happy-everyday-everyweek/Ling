@@ -33,14 +33,54 @@ jobs:
     - name: 安装依赖
       run: npm install
       
-    - name: 运行构建脚本
-      run: node build-simple-apk.js
-      
+    - name: 安装Gradle
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gradle
+        
+    - name: 初始化React Native项目
+      run: |
+        # 如果android目录不存在，创建基本结构
+        if [ ! -d "android" ]; then
+          npx react-native init TempProject --skip-install
+          cp -r TempProject/android ./
+          rm -rf TempProject
+        fi
+        
+        # 确保gradlew存在并可执行
+        if [ ! -f "android/gradlew" ]; then
+          cd android
+          gradle wrapper
+          cd ..
+        fi
+        chmod +x android/gradlew
+        
+    - name: 创建debug keystore
+      run: |
+        mkdir -p android/app
+        keytool -genkeypair -v -keystore android/app/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+        
+    - name: 构建APK
+      run: |
+        cd android
+        ./gradlew assembleRelease --no-daemon --stacktrace
+        
+    - name: 重命名APK
+      run: |
+        if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
+          cp android/app/build/outputs/apk/release/app-release.apk ./灵动陪伴-v1.0.${{ github.run_number }}.apk
+          ls -la ./灵动陪伴-v1.0.${{ github.run_number }}.apk
+        else
+          echo "APK文件未找到！"
+          find android -name "*.apk" -type f
+          exit 1
+        fi
+        
     - name: 上传APK文件
       uses: actions/upload-artifact@v4
       with:
         name: 灵动陪伴-APK
-        path: ./灵动陪伴-v*.apk
+        path: ./灵动陪伴-v1.0.${{ github.run_number }}.apk
         retention-days: 30
         
     - name: 创建Release
@@ -68,7 +108,7 @@ jobs:
           - 自动构建版本 v1.0.${{ github.run_number }}
           - 优化用户体验
           - 修复已知问题
-        files: ./灵动陪伴-v*.apk
+        files: ./灵动陪伴-v1.0.${{ github.run_number }}.apk
         draft: false
         prerelease: false
       env:
