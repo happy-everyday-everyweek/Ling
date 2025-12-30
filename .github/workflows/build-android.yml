@@ -1,4 +1,4 @@
-name: Build Android APK
+name: 构建灵动陪伴APK
 
 on:
   push:
@@ -12,396 +12,64 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
+    - name: 检出代码
       uses: actions/checkout@v4
       
-    - name: Setup Node.js
+    - name: 设置Node.js环境
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
         
-    - name: Setup Java
+    - name: 设置Java环境
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
         
-    - name: Setup Android SDK
+    - name: 设置Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Install dependencies
+    - name: 安装依赖
       run: npm install
       
-    - name: Create Android project structure
-      run: |
-        # 创建基本的Android项目结构
-        mkdir -p android/app/src/main/java/com/aicompanion/app
-        mkdir -p android/app/src/main/res/values
-        mkdir -p android/app/src/main/res/mipmap-hdpi
-        mkdir -p android/app/src/main/res/mipmap-mdpi
-        mkdir -p android/app/src/main/res/mipmap-xhdpi
-        mkdir -p android/app/src/main/res/mipmap-xxhdpi
-        mkdir -p android/app/src/main/res/mipmap-xxxhdpi
-        
-    - name: Create Android configuration files
-      run: |
-        # 创建 build.gradle (项目级)
-        cat > android/build.gradle << 'EOF'
-        buildscript {
-            ext {
-                buildToolsVersion = "34.0.0"
-                minSdkVersion = 21
-                compileSdkVersion = 34
-                targetSdkVersion = 34
-                ndkVersion = "25.1.8937393"
-            }
-            dependencies {
-                classpath("com.android.tools.build:gradle:8.0.2")
-                classpath("com.facebook.react:react-native-gradle-plugin")
-            }
-        }
-        
-        allprojects {
-            repositories {
-                google()
-                mavenCentral()
-                maven { url 'https://www.jitpack.io' }
-            }
-        }
-        EOF
-        
-        # 创建 build.gradle (应用级)
-        cat > android/app/build.gradle << 'EOF'
-        apply plugin: "com.android.application"
-        apply plugin: "com.facebook.react"
-        
-        android {
-            ndkVersion rootProject.ext.ndkVersion
-            compileSdkVersion rootProject.ext.compileSdkVersion
-            
-            namespace "com.aicompanion.app"
-            defaultConfig {
-                applicationId "com.aicompanion.app"
-                minSdkVersion rootProject.ext.minSdkVersion
-                targetSdkVersion rootProject.ext.targetSdkVersion
-                versionCode 1
-                versionName "1.0.0"
-            }
-            
-            signingConfigs {
-                debug {
-                    storeFile file('debug.keystore')
-                    storePassword 'android'
-                    keyAlias 'androiddebugkey'
-                    keyPassword 'android'
-                }
-            }
-            
-            buildTypes {
-                debug {
-                    signingConfig signingConfigs.debug
-                }
-                release {
-                    signingConfig signingConfigs.debug
-                    minifyEnabled false
-                    proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-                }
-            }
-        }
-        
-        dependencies {
-            implementation "com.facebook.react:react-android"
-            
-            if (hermesEnabled.toBoolean()) {
-                implementation("com.facebook.react:hermes-android")
-            } else {
-                implementation jscFlavor
-            }
-        }
-        
-        apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
-        EOF
-        
-        # 创建 AndroidManifest.xml
-        cat > android/app/src/main/AndroidManifest.xml << 'EOF'
-        <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-        
-            <uses-permission android:name="android.permission.INTERNET" />
-            <uses-permission android:name="android.permission.RECORD_AUDIO" />
-            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-        
-            <application
-              android:name=".MainApplication"
-              android:label="@string/app_name"
-              android:icon="@mipmap/ic_launcher"
-              android:roundIcon="@mipmap/ic_launcher_round"
-              android:allowBackup="false"
-              android:theme="@style/AppTheme">
-              <activity
-                android:name=".MainActivity"
-                android:label="@string/app_name"
-                android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-                android:launchMode="singleTask"
-                android:windowSoftInputMode="adjustResize"
-                android:exported="true">
-                <intent-filter>
-                    <action android:name="android.intent.action.MAIN" />
-                    <category android:name="android.intent.category.LAUNCHER" />
-                </intent-filter>
-              </activity>
-            </application>
-        </manifest>
-        EOF
-        
-        # 创建 strings.xml
-        cat > android/app/src/main/res/values/strings.xml << 'EOF'
-        <resources>
-            <string name="app_name">灵动陪伴</string>
-        </resources>
-        EOF
-        
-        # 创建 MainActivity.java
-        cat > android/app/src/main/java/com/aicompanion/app/MainActivity.java << 'EOF'
-        package com.aicompanion.app;
-        
-        import com.facebook.react.ReactActivity;
-        import com.facebook.react.ReactActivityDelegate;
-        import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
-        import com.facebook.react.defaults.DefaultReactActivityDelegate;
-        
-        public class MainActivity extends ReactActivity {
-        
-          @Override
-          protected String getMainComponentName() {
-            return "AiCompanionApp";
-          }
-        
-          @Override
-          protected ReactActivityDelegate createReactActivityDelegate() {
-            return new DefaultReactActivityDelegate(
-                this,
-                getMainComponentName(),
-                DefaultNewArchitectureEntryPoint.getFabricEnabled());
-          }
-        }
-        EOF
-        
-        # 创建 MainApplication.java
-        cat > android/app/src/main/java/com/aicompanion/app/MainApplication.java << 'EOF'
-        package com.aicompanion.app;
-        
-        import android.app.Application;
-        import com.facebook.react.PackageList;
-        import com.facebook.react.ReactApplication;
-        import com.facebook.react.ReactNativeHost;
-        import com.facebook.react.ReactPackage;
-        import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
-        import com.facebook.react.defaults.DefaultReactNativeHost;
-        import com.facebook.soloader.SoLoader;
-        import java.util.List;
-        
-        public class MainApplication extends Application implements ReactApplication {
-        
-          private final ReactNativeHost mReactNativeHost =
-              new DefaultReactNativeHost(this) {
-                @Override
-                public boolean getUseDeveloperSupport() {
-                  return BuildConfig.DEBUG;
-                }
-        
-                @Override
-                protected List<ReactPackage> getPackages() {
-                  @SuppressWarnings("UnnecessaryLocalVariable")
-                  List<ReactPackage> packages = new PackageList(this).getPackages();
-                  return packages;
-                }
-        
-                @Override
-                protected String getJSMainModuleName() {
-                  return "index";
-                }
-        
-                @Override
-                protected boolean isNewArchEnabled() {
-                  return DefaultNewArchitectureEntryPoint.getFabricEnabled();
-                }
-        
-                @Override
-                protected Boolean isHermesEnabled() {
-                  return DefaultNewArchitectureEntryPoint.getHermesEnabled();
-                }
-              };
-        
-          @Override
-          public ReactNativeHost getReactNativeHost() {
-            return mReactNativeHost;
-          }
-        
-          @Override
-          public void onCreate() {
-            super.onCreate();
-            SoLoader.init(this, false);
-            if (DefaultNewArchitectureEntryPoint.getFabricEnabled()) {
-              DefaultNewArchitectureEntryPoint.load();
-            }
-          }
-        }
-        EOF
-        
-    - name: Create debug keystore
-      run: |
-        keytool -genkeypair -v -keystore android/app/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-        
-    - name: Make gradlew executable
-      run: |
-        # 创建 gradlew 脚本
-        cat > android/gradlew << 'EOF'
-        #!/bin/sh
-        
-        # Gradle start up script for UN*X
-        
-        # Attempt to set APP_HOME
-        # Resolve links: $0 may be a link
-        PRG="$0"
-        # Need this for relative symlinks.
-        while [ -h "$PRG" ] ; do
-            ls=`ls -ld "$PRG"`
-            link=`expr "$ls" : '.*-> \(.*\)$'`
-            if expr "$link" : '/.*' > /dev/null; then
-                PRG="$link"
-            else
-                PRG=`dirname "$PRG"`"/$link"
-            fi
-        done
-        SAVED="`pwd`"
-        cd "`dirname \"$PRG\"`/" >/dev/null
-        APP_HOME="`pwd -P`"
-        cd "$SAVED" >/dev/null
-        
-        APP_NAME="Gradle"
-        APP_BASE_NAME=`basename "$0"`
-        
-        # Use the maximum available, or set MAX_FD != -1 to use that value.
-        MAX_FD="maximum"
-        
-        warn ( ) {
-            echo "$*"
-        }
-        
-        die ( ) {
-            echo
-            echo "$*"
-            echo
-            exit 1
-        }
-        
-        # OS specific support (must be 'true' or 'false').
-        cygwin=false
-        msys=false
-        darwin=false
-        case "`uname`" in
-          CYGWIN* )
-            cygwin=true
-            ;;
-          Darwin* )
-            darwin=true
-            ;;
-          MINGW* )
-            msys=true
-            ;;
-        esac
-        
-        # For Cygwin, ensure paths are in UNIX format before anything is touched.
-        if $cygwin ; then
-            [ -n "$JAVA_HOME" ] && JAVA_HOME=`cygpath --unix "$JAVA_HOME"`
-        fi
-        
-        # Attempt to set ANDROID_HOME
-        if [ -z "$ANDROID_HOME" ] ; then
-            if [ -x "$ANDROID_SDK_ROOT/platform-tools/adb" ] ; then
-                export ANDROID_HOME="$ANDROID_SDK_ROOT"
-            elif [ -x "$HOME/Android/Sdk/platform-tools/adb" ] ; then
-                export ANDROID_HOME="$HOME/Android/Sdk"
-            elif [ -x "/usr/local/android-sdk/platform-tools/adb" ] ; then
-                export ANDROID_HOME="/usr/local/android-sdk"
-            fi
-        fi
-        
-        # Determine the Java command to use to start the JVM.
-        if [ -n "$JAVA_HOME" ] ; then
-            if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
-                # IBM's JDK on AIX uses strange locations for the executables
-                JAVACMD="$JAVA_HOME/jre/sh/java"
-            else
-                JAVACMD="$JAVA_HOME/bin/java"
-            fi
-            if [ ! -x "$JAVACMD" ] ; then
-                die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
-        
-        Please set the JAVA_HOME variable in your environment to match the
-        location of your Java installation."
-            fi
-        else
-            JAVACMD="java"
-            which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
-        
-        Please set the JAVA_HOME variable in your environment to match the
-        location of your Java installation."
-        fi
-        
-        # Increase the maximum file descriptors if we can.
-        if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
-            MAX_FD_LIMIT=`ulimit -H -n`
-            if [ $? -eq 0 ] ; then
-                if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
-                    MAX_FD="$MAX_FD_LIMIT"
-                fi
-                ulimit -n $MAX_FD
-                if [ $? -ne 0 ] ; then
-                    warn "Could not set maximum file descriptor limit: $MAX_FD"
-                fi
-            else
-                warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
-            fi
-        fi
-        
-        # For Darwin, add options to specify how the application appears in the dock
-        if $darwin; then
-            GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
-        fi
-        
-        # For Cygwin, switch paths to Windows format before running java
-        if $cygwin ; then
-            APP_HOME=`cygpath --path --mixed "$APP_HOME"`
-            CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
-        fi
-        
-        exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
-        EOF
-        
-        chmod +x android/gradlew
-        
-    - name: Build APK
-      run: |
-        cd android
-        ./gradlew assembleRelease --no-daemon --stacktrace
-        
-    - name: Rename APK
-      run: |
-        if [ -f "android/app/build/outputs/apk/release/app-release.apk" ]; then
-          cp android/app/build/outputs/apk/release/app-release.apk ./灵动陪伴-v1.0.0.apk
-          ls -la ./灵动陪伴-v1.0.0.apk
-        else
-          echo "APK file not found!"
-          find android -name "*.apk" -type f
-          exit 1
-        fi
-        
-    - name: Upload APK
+    - name: 运行构建脚本
+      run: node build-simple-apk.js
+      
+    - name: 上传APK文件
       uses: actions/upload-artifact@v4
       with:
         name: 灵动陪伴-APK
-        path: ./灵动陪伴-v1.0.0.apk
+        path: ./灵动陪伴-v*.apk
         retention-days: 30
+        
+    - name: 创建Release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        name: 灵动陪伴 v1.0.${{ github.run_number }}
+        body: |
+          🎉 灵动陪伴 - AI情感陪伴应用
+          
+          ## 功能特性
+          - 🤖 智能AI对话陪伴
+          - 📝 日记记录与管理
+          - 💭 心情分析与统计
+          - 📱 社交帖子互动
+          
+          ## 安装说明
+          1. 下载APK文件
+          2. 在Android设备上启用"未知来源"安装
+          3. 点击APK文件进行安装
+          4. 首次使用需要配置DeepSeek API密钥
+          
+          ## 更新内容
+          - 自动构建版本 v1.0.${{ github.run_number }}
+          - 优化用户体验
+          - 修复已知问题
+        files: ./灵动陪伴-v*.apk
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
