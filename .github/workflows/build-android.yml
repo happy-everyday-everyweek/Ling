@@ -48,6 +48,10 @@ jobs:
         mkdir -p android/app/src/main/res/mipmap-xhdpi
         mkdir -p android/app/src/main/res/mipmap-xxhdpi
         mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+        mkdir -p android/gradle/wrapper
+        
+        # 下载 gradle-wrapper.jar
+        curl -L https://github.com/gradle/gradle/raw/v7.6.1/gradle/wrapper/gradle-wrapper.jar -o android/gradle/wrapper/gradle-wrapper.jar
         
         # 创建AndroidManifest.xml
         cat > android/app/src/main/AndroidManifest.xml << 'EOF'
