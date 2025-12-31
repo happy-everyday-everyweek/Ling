@@ -96,9 +96,12 @@ android {
     }
 }
 
+// 定义变量
+def hermesEnabled = project.ext.react.get("enableHermes", true);
+def jscFlavor = 'org.webkit:android-jsc:+'
+
 dependencies {
     implementation "com.facebook.react:react-android"
-    implementation "com.facebook.react:hermes-android"
     
     // React Native 依赖
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
@@ -116,8 +119,5 @@ dependencies {
         implementation jscFlavor
     }
 }
-
-def hermesEnabled = project.ext.react.get("enableHermes", true);
-def jscFlavor = 'org.webkit:android-jsc:+'
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
