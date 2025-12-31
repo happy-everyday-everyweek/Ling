@@ -24,18 +24,18 @@ if ! command -v npm &> /dev/null; then
     exit 1
 fi
 
-# 安装Expo CLI
-echo "📦 检查Expo CLI..."
-if ! command -v expo &> /dev/null; then
-    echo "正在安装Expo CLI..."
-    npm install -g @expo/cli
+# 安装React Native CLI
+echo "📦 检查React Native CLI..."
+if ! command -v react-native &> /dev/null; then
+    echo "正在安装React Native CLI..."
+    npm install -g @react-native-community/cli
     if [ $? -ne 0 ]; then
-        echo "❌ Expo CLI安装失败"
+        echo "❌ React Native CLI安装失败"
         exit 1
     fi
-    echo "✅ Expo CLI安装完成"
+    echo "✅ React Native CLI安装完成"
 else
-    echo "✅ Expo CLI已安装"
+    echo "✅ React Native CLI已安装"
 fi
 
 # 安装项目依赖

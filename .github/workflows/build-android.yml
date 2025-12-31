@@ -33,14 +33,164 @@ jobs:
     - name: 安装依赖
       run: npm install
       
-    - name: 安装Gradle
+    - name: 创建必要的Android文件
       run: |
-        sudo apt-get update
-        sudo apt-get install -y gradle
+        # 确保所有必要的目录存在
+        mkdir -p android/app/src/main/java/com/aicompanion/app
+        mkdir -p android/app/src/main/res/values
+        mkdir -p android/gradle/wrapper
+        
+        # 创建AndroidManifest.xml（如果不存在）
+        if [ ! -f "android/app/src/main/AndroidManifest.xml" ]; then
+          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+        <?xml version="1.0" encoding="utf-8"?>
+        <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+        
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.RECORD_AUDIO" />
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+        
+            <application
+              android:name=".MainApplication"
+              android:label="@string/app_name"
+              android:icon="@mipmap/ic_launcher"
+              android:roundIcon="@mipmap/ic_launcher_round"
+              android:allowBackup="false"
+              android:theme="@style/AppTheme">
+              <activity
+                android:name=".MainActivity"
+                android:label="@string/app_name"
+                android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+                android:launchMode="singleTask"
+                android:windowSoftInputMode="adjustResize"
+                android:exported="true">
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+              </activity>
+            </application>
+        </manifest>
+        EOF
+        fi
+        
+        # 创建strings.xml（如果不存在）
+        if [ ! -f "android/app/src/main/res/values/strings.xml" ]; then
+          cat > android/app/src/main/res/values/strings.xml << 'EOF'
+        <resources>
+            <string name="app_name">灵动陪伴</string>
+        </resources>
+        EOF
+        fi
+        
+        # 创建MainActivity.java（如果不存在）
+        if [ ! -f "android/app/src/main/java/com/aicompanion/app/MainActivity.java" ]; then
+          cat > android/app/src/main/java/com/aicompanion/app/MainActivity.java << 'EOF'
+        package com.aicompanion.app;
+        
+        import com.facebook.react.ReactActivity;
+        import com.facebook.react.ReactActivityDelegate;
+        import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
+        import com.facebook.react.defaults.DefaultReactActivityDelegate;
+        
+        public class MainActivity extends ReactActivity {
+        
+          @Override
+          protected String getMainComponentName() {
+            return "AiCompanionApp";
+          }
+        
+          @Override
+          protected ReactActivityDelegate createReactActivityDelegate() {
+            return new DefaultReactActivityDelegate(
+                this,
+                getMainComponentName(),
+                DefaultNewArchitectureEntryPoint.getFabricEnabled());
+          }
+        }
+        EOF
+        fi
+        
+        # 创建MainApplication.java（如果不存在）
+        if [ ! -f "android/app/src/main/java/com/aicompanion/app/MainApplication.java" ]; then
+          cat > android/app/src/main/java/com/aicompanion/app/MainApplication.java << 'EOF'
+        package com.aicompanion.app;
+        
+        import android.app.Application;
+        import com.facebook.react.PackageList;
+        import com.facebook.react.ReactApplication;
+        import com.facebook.react.ReactNativeHost;
+        import com.facebook.react.ReactPackage;
+        import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
+        import com.facebook.react.defaults.DefaultReactNativeHost;
+        import com.facebook.soloader.SoLoader;
+        import java.util.List;
+        
+        public class MainApplication extends Application implements ReactApplication {
+        
+          private final ReactNativeHost mReactNativeHost =
+              new DefaultReactNativeHost(this) {
+                @Override
+                public boolean getUseDeveloperSupport() {
+                  return BuildConfig.DEBUG;
+                }
+        
+                @Override
+                protected List<ReactPackage> getPackages() {
+                  @SuppressWarnings("UnnecessaryLocalVariable")
+                  List<ReactPackage> packages = new PackageList(this).getPackages();
+                  return packages;
+                }
+        
+                @Override
+                protected String getJSMainModuleName() {
+                  return "index";
+                }
+        
+                @Override
+                protected boolean isNewArchEnabled() {
+                  return DefaultNewArchitectureEntryPoint.getFabricEnabled();
+                }
+        
+                @Override
+                protected Boolean isHermesEnabled() {
+                  return DefaultNewArchitectureEntryPoint.getHermesEnabled();
+                }
+              };
+        
+          @Override
+          public ReactNativeHost getReactNativeHost() {
+            return mReactNativeHost;
+          }
+        
+          @Override
+          public void onCreate() {
+            super.onCreate();
+            SoLoader.init(this, false);
+            if (DefaultNewArchitectureEntryPoint.getFabricEnabled()) {
+              DefaultNewArchitectureEntryPoint.load();
+            }
+          }
+        }
+        EOF
+        fi
         
     - name: 创建Gradle Wrapper
       run: |
         cd android
+        
+        # 创建gradle wrapper配置
+        mkdir -p gradle/wrapper
+        cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
+        distributionBase=GRADLE_USER_HOME
+        distributionPath=wrapper/dists
+        distributionUrl=https\://services.gradle.org/distributions/gradle-7.6.1-bin.zip
+        zipStoreBase=GRADLE_USER_HOME
+        zipStorePath=wrapper/dists
+        EOF
+        
+        # 使用系统gradle创建wrapper
         gradle wrapper --gradle-version 7.6.1
         chmod +x gradlew
         cd ..
@@ -53,7 +203,7 @@ jobs:
     - name: 构建APK
       run: |
         cd android
-        ./gradlew assembleRelease --no-daemon --stacktrace
+        ./gradlew assembleRelease --no-daemon --stacktrace --info
         
     - name: 重命名APK
       run: |

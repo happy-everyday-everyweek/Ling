@@ -23,20 +23,20 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM 检查Expo CLI
-echo 📦 检查Expo CLI...
-expo --version >nul 2>&1
+REM 检查React Native CLI
+echo 📦 检查React Native CLI...
+npx react-native --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo 正在安装Expo CLI...
-    npm install -g @expo/cli
+    echo 正在安装React Native CLI...
+    npm install -g @react-native-community/cli
     if %errorlevel% neq 0 (
-        echo ❌ Expo CLI安装失败
+        echo ❌ React Native CLI安装失败
         pause
         exit /b 1
     )
-    echo ✅ Expo CLI安装完成
+    echo ✅ React Native CLI安装完成
 ) else (
-    echo ✅ Expo CLI已安装
+    echo ✅ React Native CLI已安装
 )
 
 REM 安装项目依赖
