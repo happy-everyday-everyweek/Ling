@@ -29,9 +29,15 @@ jobs:
         
     - name: 设置Android SDK
       uses: android-actions/setup-android@v3
+      with:
+        api-level: 33
+        build-tools: 33.0.0
       
     - name: 安装依赖
-      run: npm install
+      run: |
+        npm install
+        # 确保React Native CLI可用
+        npm install -g @react-native-community/cli
       
     - name: 安装Gradle
       run: |
