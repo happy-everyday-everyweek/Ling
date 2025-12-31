@@ -35,25 +35,22 @@ jobs:
       
     - name: 安装依赖
       run: |
-        npm install
-        # 确保React Native CLI可用
+        npm ci
         npm install -g @react-native-community/cli
-      
-    - name: 安装Gradle
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gradle
-      
+        
     - name: 创建必要的Android文件
       run: |
         # 确保所有必要的目录存在
         mkdir -p android/app/src/main/java/com/aicompanion/app
         mkdir -p android/app/src/main/res/values
-        mkdir -p android/gradle/wrapper
+        mkdir -p android/app/src/main/res/mipmap-hdpi
+        mkdir -p android/app/src/main/res/mipmap-mdpi
+        mkdir -p android/app/src/main/res/mipmap-xhdpi
+        mkdir -p android/app/src/main/res/mipmap-xxhdpi
+        mkdir -p android/app/src/main/res/mipmap-xxxhdpi
         
-        # 创建AndroidManifest.xml（如果不存在）
-        if [ ! -f "android/app/src/main/AndroidManifest.xml" ]; then
-          cat > android/app/src/main/AndroidManifest.xml << 'EOF'
+        # 创建AndroidManifest.xml
+        cat > android/app/src/main/AndroidManifest.xml << 'EOF'
         <?xml version="1.0" encoding="utf-8"?>
         <manifest xmlns:android="http://schemas.android.com/apk/res/android">
         
@@ -84,20 +81,25 @@ jobs:
             </application>
         </manifest>
         EOF
-        fi
         
-        # 创建strings.xml（如果不存在）
-        if [ ! -f "android/app/src/main/res/values/strings.xml" ]; then
-          cat > android/app/src/main/res/values/strings.xml << 'EOF'
+        # 创建strings.xml
+        cat > android/app/src/main/res/values/strings.xml << 'EOF'
         <resources>
             <string name="app_name">灵动陪伴</string>
         </resources>
         EOF
-        fi
         
-        # 创建MainActivity.java（如果不存在）
-        if [ ! -f "android/app/src/main/java/com/aicompanion/app/MainActivity.java" ]; then
-          cat > android/app/src/main/java/com/aicompanion/app/MainActivity.java << 'EOF'
+        # 创建styles.xml
+        cat > android/app/src/main/res/values/styles.xml << 'EOF'
+        <resources>
+            <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
+                <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+            </style>
+        </resources>
+        EOF
+        
+        # 创建MainActivity.java
+        cat > android/app/src/main/java/com/aicompanion/app/MainActivity.java << 'EOF'
         package com.aicompanion.app;
         
         import com.facebook.react.ReactActivity;
@@ -121,11 +123,9 @@ jobs:
           }
         }
         EOF
-        fi
         
-        # 创建MainApplication.java（如果不存在）
-        if [ ! -f "android/app/src/main/java/com/aicompanion/app/MainApplication.java" ]; then
-          cat > android/app/src/main/java/com/aicompanion/app/MainApplication.java << 'EOF'
+        # 创建MainApplication.java
+        cat > android/app/src/main/java/com/aicompanion/app/MainApplication.java << 'EOF'
         package com.aicompanion.app;
         
         import android.app.Application;
@@ -185,35 +185,31 @@ jobs:
           }
         }
         EOF
-        fi
         
-    - name: 创建Gradle Wrapper
-      run: |
-        cd android
-        
-        # 创建gradle wrapper配置
-        mkdir -p gradle/wrapper
-        cat > gradle/wrapper/gradle-wrapper.properties << 'EOF'
-        distributionBase=GRADLE_USER_HOME
-        distributionPath=wrapper/dists
-        distributionUrl=https\://services.gradle.org/distributions/gradle-7.6.1-bin.zip
-        zipStoreBase=GRADLE_USER_HOME
-        zipStorePath=wrapper/dists
-        EOF
-        
-        # 使用系统gradle创建wrapper
-        gradle wrapper --gradle-version 7.6.1
-        chmod +x gradlew
-        cd ..
+        # 复制应用图标
+        cp assets/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+        cp assets/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+        cp assets/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+        cp assets/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+        cp assets/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+        cp assets/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+        cp assets/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+        cp assets/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+        cp assets/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+        cp assets/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
         
     - name: 创建debug keystore
       run: |
         mkdir -p android/app
         keytool -genkeypair -v -keystore android/app/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
         
+    - name: 使Gradle可执行
+      run: chmod +x android/gradlew
+        
     - name: 构建APK
       run: |
         cd android
+        ./gradlew clean
         ./gradlew assembleRelease --no-daemon --stacktrace --info
         
     - name: 重命名APK
