@@ -52,7 +52,8 @@ react {
 
 // 为依赖库提供 hermesEnabled 属性 - 必须在 android 块之前定义
 project.ext.react = [
-    enableHermes: true
+    enableHermes: true,
+    hermesEnabled: true  // react-native-reanimated 需要这个属性
 ]
 
 android {
