@@ -29,9 +29,6 @@ jobs:
         
     - name: 设置Android SDK
       uses: android-actions/setup-android@v3
-      with:
-        api-level: 33
-        build-tools: 33.0.0
       
     - name: 安装依赖
       run: |
@@ -50,8 +47,13 @@ jobs:
         mkdir -p android/app/src/main/res/mipmap-xxxhdpi
         mkdir -p android/gradle/wrapper
         
-        # 下载 gradle-wrapper.jar
-        curl -L https://github.com/gradle/gradle/raw/v7.6.1/gradle/wrapper/gradle-wrapper.jar -o android/gradle/wrapper/gradle-wrapper.jar
+        # 下载 gradle-wrapper.jar（如果不存在）
+        if [ ! -f "android/gradle/wrapper/gradle-wrapper.jar" ]; then
+          curl -L https://raw.githubusercontent.com/gradle/gradle/v7.6.1/gradle/wrapper/gradle-wrapper.jar -o android/gradle/wrapper/gradle-wrapper.jar || \
+          curl -L https://services.gradle.org/distributions/gradle-7.6.1-bin.zip -o /tmp/gradle.zip && \
+          unzip -q /tmp/gradle.zip -d /tmp && \
+          cp /tmp/gradle-7.6.1/lib/plugins/gradle-wrapper-*.jar android/gradle/wrapper/gradle-wrapper.jar
+        fi
         
         # 创建AndroidManifest.xml
         cat > android/app/src/main/AndroidManifest.xml << 'EOF'
@@ -190,17 +192,21 @@ jobs:
         }
         EOF
         
-        # 复制应用图标
-        cp assets/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png
-        cp assets/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
-        cp assets/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
-        cp assets/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
-        cp assets/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
-        cp assets/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
-        cp assets/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
-        cp assets/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
-        cp assets/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
-        cp assets/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+        # 复制应用图标（如果存在）
+        if [ -f "assets/icon.png" ]; then
+          cp assets/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher.png
+          cp assets/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp assets/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          cp assets/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          cp assets/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+          cp assets/icon.png android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+          cp assets/icon.png android/app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+          cp assets/icon.png android/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+          cp assets/icon.png android/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+          cp assets/icon.png android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+        else
+          echo "警告: assets/icon.png 不存在，将使用默认图标"
+        fi
         
     - name: 创建debug keystore
       run: |

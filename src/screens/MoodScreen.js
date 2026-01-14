@@ -311,25 +311,27 @@ const MoodScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
     paddingTop: 50,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
   loadingText: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 16,
   },
   header: {
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    borderBottomColor: 'rgba(0, 0, 0, 0.1)',
   },
   headerTitle: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 24,
     fontWeight: 'bold',
   },
@@ -343,13 +345,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 20,
     marginRight: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
   periodButtonActive: {
-    backgroundColor: 'rgba(108, 99, 255, 0.3)',
+    backgroundColor: '#6C63FF',
   },
   periodButtonText: {
-    color: '#8E8E93',
+    color: '#666666',
     fontSize: 14,
   },
   periodButtonTextActive: {
@@ -367,13 +369,13 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   sectionTitle: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
   },
   chartContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
     borderRadius: 15,
     padding: 20,
   },
@@ -391,7 +393,7 @@ const styles = StyleSheet.create({
   chartBarBackground: {
     flex: 1,
     height: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.08)',
     borderRadius: 10,
     overflow: 'hidden',
   },
@@ -400,7 +402,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   chartCount: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 12,
     marginLeft: 8,
     minWidth: 20,
@@ -412,7 +414,7 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   chartLabelText: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 14,
     marginLeft: 5,
   },
@@ -429,7 +431,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   insightsTitle: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
@@ -437,6 +439,7 @@ const styles = StyleSheet.create({
   insightCard: {
     borderRadius: 15,
     overflow: 'hidden',
+    backgroundColor: 'rgba(108, 99, 255, 0.08)',
   },
   insightGradient: {
     padding: 20,
@@ -447,14 +450,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   insightMainText: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 10,
     flex: 1,
   },
   insightDetail: {
-    color: '#CCCCCC',
+    color: '#666666',
     fontSize: 14,
     marginVertical: 2,
   },
@@ -462,7 +465,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   recentTitle: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
@@ -473,7 +476,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(0, 0, 0, 0.03)',
     borderRadius: 10,
     marginVertical: 4,
   },
@@ -483,7 +486,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   recentMoodText: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 14,
     marginLeft: 8,
   },

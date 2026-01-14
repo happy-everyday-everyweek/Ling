@@ -29,9 +29,15 @@ class StorageServiceClass {
 
   async saveConversationHistory(history) {
     try {
+      // 确保每条消息都有时间戳
+      const historyWithTimestamp = history.map(msg => ({
+        ...msg,
+        timestamp: msg.timestamp || new Date().toISOString()
+      }));
+      
       await AsyncStorage.setItem(
         StorageServiceClass.KEYS.CONVERSATION_HISTORY,
-        JSON.stringify(history)
+        JSON.stringify(historyWithTimestamp)
       );
     } catch (error) {
       console.error('保存对话历史失败:', error);

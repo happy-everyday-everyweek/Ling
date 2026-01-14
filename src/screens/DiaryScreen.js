@@ -66,12 +66,20 @@ const DiaryScreen = () => {
   const generateAIDiaryIfNeeded = async () => {
     try {
       const today = new Date().toDateString();
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString();
+      
       const lastAIDiary = await StorageService.getLastAIDiary();
       const conversationHistory = await StorageService.getConversationHistory();
       
-      // 检查是否需要生成AI日记
+      // 检查昨天是否有对话
+      const yesterdayConversations = conversationHistory.filter(msg => {
+        const msgDate = new Date(msg.timestamp || Date.now()).toDateString();
+        return msgDate === yesterday;
+      });
+      
+      // 检查是否需要生成AI日记：今天还没生成 且 昨天有对话
       if ((!lastAIDiary || new Date(lastAIDiary.timestamp).toDateString() !== today) 
-          && conversationHistory.length > 0) {
+          && yesterdayConversations.length > 0) {
         
         const aiDiaryContent = await AIService.generateAIDiary(conversationHistory);
         const aiDiary = await StorageService.saveAIDiary({
@@ -400,13 +408,13 @@ const DiaryScreen = () => {
         <View style={styles.modalOverlay}>
           <Animated.View style={[styles.modalContent, modalAnimatedStyle]}>
             <LinearGradient
-              colors={['#1A1A2E', '#0A0A0F']}
+              colors={['#FFFFFF', '#FFFFFF']}
               style={styles.modalGradient}
             >
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>新日记</Text>
                 <TouchableOpacity onPress={handleCloseDiary}>
-                  <Icon name="close" size={24} color="#FFFFFF" />
+                  <Icon name="close" size={24} color="#333333" />
                 </TouchableOpacity>
               </View>
 
@@ -458,7 +466,7 @@ const DiaryScreen = () => {
         <View style={styles.modalOverlay}>
           <Animated.View style={[styles.modalContent, modalAnimatedStyle]}>
             <LinearGradient
-              colors={['#1A1A2E', '#0A0A0F']}
+              colors={['#FFFFFF', '#FFFFFF']}
               style={styles.modalGradient}
             >
               <View style={styles.modalHeader}>
@@ -466,14 +474,16 @@ const DiaryScreen = () => {
                   {selectedEntry?.title}
                 </Text>
                 <View style={styles.headerActions}>
-                  <TouchableOpacity
-                    style={styles.deleteButton}
-                    onPress={() => handleDeleteEntry(selectedEntry?.id)}
-                  >
-                    <Icon name="delete" size={20} color="#FF6B9D" />
-                  </TouchableOpacity>
+                  {!selectedEntry?.isAIDiary && (
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDeleteEntry(selectedEntry?.id)}
+                    >
+                      <Icon name="delete" size={20} color="#FF6B9D" />
+                    </TouchableOpacity>
+                  )}
                   <TouchableOpacity onPress={handleCloseDetail}>
-                    <Icon name="close" size={24} color="#FFFFFF" />
+                    <Icon name="close" size={24} color="#333333" />
                   </TouchableOpacity>
                 </View>
               </View>

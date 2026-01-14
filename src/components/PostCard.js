@@ -182,7 +182,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 15,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
@@ -193,13 +194,13 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(108, 99, 255, 0.3)',
+    backgroundColor: 'rgba(108, 99, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   avatarText: {
-    color: '#FFFFFF',
+    color: '#6C63FF',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -207,7 +208,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   authorName: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   content: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 16,
     lineHeight: 22,
     marginBottom: 15,
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
   },
   actionButton: {
     flexDirection: 'row',
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
   commentItem: {
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(108, 99, 255, 0.05)',
     borderRadius: 8,
     marginVertical: 2,
   },
@@ -267,7 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   commentContent: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 14,
     lineHeight: 18,
   },
@@ -279,14 +280,14 @@ const styles = StyleSheet.create({
   commentInput: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 8,
   },
   commentTextInput: {
     flex: 1,
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 14,
     maxHeight: 60,
     textAlignVertical: 'top',

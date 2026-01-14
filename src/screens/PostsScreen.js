@@ -51,12 +51,15 @@ const PostsScreen = () => {
   const loadPosts = async () => {
     try {
       let existingPosts = await StorageService.getPosts();
+      const viewedPostsMap = await StorageService.getViewedPosts();
+      const viewedMap = new Map(viewedPostsMap);
       
       // 过滤已查看两次且未互动的帖子
+      const today = new Date().toDateString();
       const filteredPosts = existingPosts.filter(post => {
         if (post.isUserPost) return true; // 用户帖子始终显示
         
-        const viewCount = viewedPosts.get(post.id) || 0;
+        const viewCount = viewedMap.get(post.id) || 0;
         const hasInteraction = post.userLiked || post.userCommented;
         
         // 如果查看超过2次且没有互动，检查是否应该删除
@@ -68,7 +71,6 @@ const PostsScreen = () => {
         }
         
         // 同一帖子每天最多主动展示一次
-        const today = new Date().toDateString();
         const lastShown = post.lastShownDate;
         if (lastShown === today && viewCount > 0) {
           return false;
@@ -77,13 +79,21 @@ const PostsScreen = () => {
         return true;
       });
       
-      // 如果过滤后帖子不足，生成新帖子
-      if (filteredPosts.length < 10) {
-        await generateNewPosts(10 - filteredPosts.length);
-        existingPosts = await StorageService.getPosts();
-      }
+      // 更新帖子的lastShownDate
+      const updatedPosts = filteredPosts.map(post => ({
+        ...post,
+        lastShownDate: today
+      }));
       
-      setPosts(existingPosts);
+      // 如果过滤后帖子不足，生成新帖子
+      if (updatedPosts.length < 10) {
+        await generateNewPosts(10 - updatedPosts.length);
+        const newPosts = await StorageService.getPosts();
+        setPosts(newPosts);
+      } else {
+        await StorageService.savePosts(updatedPosts);
+        setPosts(updatedPosts);
+      }
     } catch (error) {
       console.error('加载帖子失败:', error);
     } finally {
@@ -343,10 +353,12 @@ const PostsScreen = () => {
   }));
 
   const renderPost = ({ item, index }) => {
-    // 记录帖子展示
+    // 在渲染时记录帖子展示
     React.useEffect(() => {
-      markPostAsViewed(item.id);
-    }, []);
+      if (!item.isUserPost) {
+        markPostAsViewed(item.id);
+      }
+    }, [item.id]);
 
     return (
       <PostCard

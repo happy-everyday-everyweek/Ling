@@ -15,13 +15,11 @@ echo "✅ Android SDK: $ANDROID_HOME"
 echo "📦 安装依赖..."
 npm install
 
-# 如果android目录不存在，初始化项目
+# 如果android目录不存在，提示错误
 if [ ! -d "android" ]; then
-    echo "🏗️ 初始化React Native项目..."
-    npx react-native init TempProject --skip-install
-    cp -r TempProject/android .
-    cp -r TempProject/ios .
-    rm -rf TempProject
+    echo "❌ Android目录不存在！"
+    echo "请确保项目包含完整的android目录结构"
+    exit 1
 fi
 
 # 链接原生依赖

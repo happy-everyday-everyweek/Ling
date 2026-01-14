@@ -14,13 +14,11 @@ REM 安装依赖
 echo 📦 安装依赖...
 npm install
 
-REM 如果android目录不存在，初始化项目
+REM 如果android目录不存在，提示错误
 if not exist "android" (
-    echo 🏗️ 初始化React Native项目...
-    npx react-native init TempProject --skip-install
-    xcopy TempProject\android android\ /E /I
-    xcopy TempProject\ios ios\ /E /I
-    rmdir /s /q TempProject
+    echo ❌ Android目录不存在！
+    echo 请确保项目包含完整的android目录结构
+    exit /b 1
 )
 
 REM 链接原生依赖

@@ -142,15 +142,9 @@ function initReactNative() {
   try {
     // 如果android目录不存在，初始化项目
     if (!fs.existsSync('android')) {
-      execSync('npx react-native init TempProject --skip-install', { stdio: 'inherit' });
-      
-      // 复制android和ios目录
-      if (fs.existsSync('TempProject/android')) {
-        execSync('cp -r TempProject/android .', { stdio: 'inherit' });
-        execSync('cp -r TempProject/ios .', { stdio: 'inherit' });
-        execSync('rm -rf TempProject', { stdio: 'inherit' });
-        console.log('✅ Android/iOS项目结构已创建');
-      }
+      console.log('⚠️  Android目录不存在，请先运行 npx react-native init 或使用现有的android目录');
+      console.log('提示：Android项目结构应该已经存在于项目中');
+      process.exit(1);
     }
     
     // 更新Android配置
@@ -233,15 +227,20 @@ function buildAPK() {
     execSync('cd android && ./gradlew assembleRelease', { stdio: 'inherit' });
     
     // 检查APK文件
-    const apkPath = 'android/app/build/outputs/apk/release/app-release.apk';
+    const apkPath = path.join('android', 'app', 'build', 'outputs', 'apk', 'release', 'app-release.apk');
     if (fs.existsSync(apkPath)) {
       console.log('\n🎉 APK构建完成！');
       console.log(`📱 APK文件位置: ${apkPath}`);
       
       // 复制APK到根目录
       const targetPath = '灵动陪伴-v1.0.0.apk';
-      execSync(`cp "${apkPath}" "${targetPath}"`, { stdio: 'inherit' });
+      fs.copyFileSync(apkPath, targetPath);
       console.log(`📱 APK已复制到: ${targetPath}`);
+      
+      // 显示文件大小
+      const stats = fs.statSync(targetPath);
+      const fileSizeInMB = (stats.size / (1024 * 1024)).toFixed(2);
+      console.log(`📊 APK大小: ${fileSizeInMB} MB`);
       
     } else {
       console.error('❌ APK文件未找到');
