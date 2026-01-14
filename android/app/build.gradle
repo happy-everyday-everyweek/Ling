@@ -96,10 +96,6 @@ android {
     }
 }
 
-// 定义变量
-def hermesEnabled = project.ext.react.get("enableHermes", true);
-def jscFlavor = 'org.webkit:android-jsc:+'
-
 dependencies {
     implementation "com.facebook.react:react-android"
     
@@ -113,11 +109,8 @@ dependencies {
     }
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:0.125.0")
     
-    if (hermesEnabled.toBoolean()) {
-        implementation("com.facebook.react:hermes-android")
-    } else {
-        implementation jscFlavor
-    }
+    // Hermes 引擎
+    implementation("com.facebook.react:hermes-android")
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
